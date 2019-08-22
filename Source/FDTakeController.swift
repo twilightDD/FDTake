@@ -297,13 +297,14 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
 
         alertController?.modalPresentationStyle = .popover
         if let presenter = alertController!.popoverPresentationController {
+            presenter.sourceView = presentingView;
+            
             if let presentingBarButtonItem = presentingBarButtonItem {
                 presenter.barButtonItem = presentingBarButtonItem
                 //WARNING: on ipad this fails if no SOURCEVIEW AND SOURCE RECT is provided
                 // => Should be fixed now.
             }
             else {
-                presenter.sourceView = presentingView;
                 if let presentingRect = self.presentingRect {
                     presenter.sourceRect = presentingRect
                 }
