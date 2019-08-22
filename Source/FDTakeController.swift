@@ -280,8 +280,19 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
                     topVC.present(self.imagePicker, animated: true, completion: nil)
                 } else {
                     // On iPad use pop-overs.
-                    self.imagePicker.modalPresentationStyle = .popover
-                    self.imagePicker.popoverPresentationController?.sourceRect = popOverPresentRect
+                    self.imagePicker.modalPresentationStyle = .popover // creates a popoverPresentationController
+                    
+                    guard let popoverPresentationController = self.imagePicker.popoverPresentationController
+                        else { fatalError() }
+                    
+                    if let presentingBarButtonItem = self.presentingBarButtonItem {
+                        popoverPresentationController.barButtonItem = presentingBarButtonItem
+                    }
+                    else {
+                        popoverPresentationController.sourceRect = popOverPresentRect
+                        popoverPresentationController.sourceView = self.presentingView
+                    }
+                    
                     topVC.present(self.imagePicker, animated: true, completion: nil)
                 }
             }
@@ -309,8 +320,8 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
                     presenter.sourceRect = presentingRect
                 }
             }
-            
         }
+        
         topVC.present(alertController!, animated: true, completion: nil)
     }
 
