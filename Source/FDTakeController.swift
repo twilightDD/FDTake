@@ -106,7 +106,11 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
 
     /// The UIViewController to present from (may be replaced by a overloaded methods)
     open lazy var presentingViewController: UIViewController = {
-        return UIApplication.shared.keyWindow!.rootViewController!
+        guard let keyWindow = FDTakeController.keyWindow()
+            else { fatalError("No keywindow.") }
+        guard let presentingViewController = keyWindow.rootViewController
+        else { fatalError("No rootViewController.") }
+        return presentingViewController
     }()
 
 
@@ -163,22 +167,30 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
 
     // This is a hack required on iPad if you want to select a photo and you already have a popup on the screen
     // see: https://stackoverflow.com/a/35209728/300224
-    private func topViewController(rootViewController: UIViewController) -> UIViewController {
-        var rootViewController = UIApplication.shared.keyWindow!.rootViewController!
-        repeat {
-            guard let presentedViewController = rootViewController.presentedViewController else {
-                return rootViewController
-            }
-            
-            if let navigationController = rootViewController.presentedViewController as? UINavigationController {
-                rootViewController = navigationController.topViewController ?? navigationController
+    private func topViewController(rootViewController: UIViewController)
+        -> UIViewController {
+            guard let keyWindow = FDTakeController.keyWindow()
+                else { fatalError("No keyWindow for FDTake.")}
+            var rootViewController = keyWindow.rootViewController!
+            repeat {
+                guard let presentedViewController = rootViewController.presentedViewController else {
+                    return rootViewController
+                }
                 
-            } else {
-                rootViewController = presentedViewController
-            }
-        } while true
+                if let navigationController = rootViewController.presentedViewController as? UINavigationController {
+                    rootViewController = navigationController.topViewController ?? navigationController
+                    
+                } else {
+                    rootViewController = presentedViewController
+                }
+            } while true
     }
 
+    private class func keyWindow()
+        -> UIWindow? {
+            let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
+            return keyWindow
+    }
     
     // MARK: - Localization
 
