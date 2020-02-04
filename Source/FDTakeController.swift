@@ -193,7 +193,7 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
     }
 
     private var userInterfaceIdiom = UIDevice.current.userInterfaceIdiom
-    
+
     // MARK: - Localization
 
     private func localizeString(_ string:FDTakeControllerLocalizableStrings) -> String {
@@ -357,7 +357,7 @@ extension FDTakeController : UIImagePickerControllerDelegate, UINavigationContro
         // Local variable inserted by Swift 4.2 migrator.
         let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
 
-        UIApplication.shared.isStatusBarHidden = true
+//        UIApplication.shared.isStatusBarHidden = true
         let mediaType: String = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.mediaType)] as! String
         var imageToSave: UIImage
         // Handle a still image capture
@@ -383,7 +383,7 @@ extension FDTakeController : UIImagePickerControllerDelegate, UINavigationContro
 
     /// Conformance for image picker delegate
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        UIApplication.shared.isStatusBarHidden = true
+//        UIApplication.shared.isStatusBarHidden = true
         picker.dismiss(animated: true, completion: nil)
         self.didDeny?()
     }
