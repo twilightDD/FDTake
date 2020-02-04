@@ -155,13 +155,13 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
 
     // MARK: - Private
 
-    private lazy var imagePicker: UIImagePickerController = {
-        [unowned self] in
-        let retval = UIImagePickerController()
-        retval.delegate = self
-        retval.allowsEditing = true
-        return retval
-        }()
+//    private lazy var imagePicker: UIImagePickerController = {
+//        [unowned self] in
+//        let retval = UIImagePickerController()
+//        retval.delegate = self
+//        retval.allowsEditing = true
+//        return retval
+//        }()
 
     private var alertController: UIAlertController? = nil
 
@@ -264,19 +264,26 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
             popOverPresentRect = CGRect(x: 0, y: 0, width: 1, height: 1)
         }
 
+        // Create ImagePicker
+        let imagePicker: UIImagePickerController = UIImagePickerController();
+//        imagePicker.sourceType = UIImagePickerControllerSourceType.SavedPhotosAlbum;
+//        imagePicker.mediaTypes = [kUTTypeImage];
+//        imagePicker.allowsEditing = false;
+        imagePicker.delegate = self;
+
         alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         for (title, source) in titleToSource {
             let action = UIAlertAction(title: localizeString(title), style: .default) { [unowned self]
                 (UIAlertAction) -> Void in
-                self.imagePicker.sourceType = source
+                imagePicker.sourceType = source
                 if source == .camera
                              && self.defaultsToFrontCamera
                              && UIImagePickerController.isCameraDeviceAvailable(.front) {
-                    self.imagePicker.cameraDevice = .front
+                    imagePicker.cameraDevice = .front
                 }
 
                 // set the media type: photo or video
-                self.imagePicker.allowsEditing = self.allowsEditing
+                imagePicker.allowsEditing = self.allowsEditing
                 var mediaTypes = [String]()
                 if self.allowsPhoto {
                     mediaTypes.append(String(kUTTypeImage))
@@ -284,7 +291,7 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
                 if self.allowsVideo {
                     mediaTypes.append(String(kUTTypeMovie))
                 }
-                self.imagePicker.mediaTypes = mediaTypes
+                imagePicker.mediaTypes = mediaTypes
 
                 //TODO: Need to encapsulate popover code
                 var popOverPresentRect: CGRect = self.presentingRect ?? CGRect(x: 0, y: 0, width: 1, height: 1)
@@ -295,12 +302,12 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
 
                 if self.userInterfaceIdiom == .phone
                     || (source == .camera && self.iPadUsesFullScreenCamera) {
-                    topVC.present(self.imagePicker, animated: true, completion: nil)
+                    topVC.present(imagePicker, animated: true, completion: nil)
                 } else {
                     // On iPad use pop-overs.
-                    self.imagePicker.modalPresentationStyle = .popover // creates a popoverPresentationController
+                    imagePicker.modalPresentationStyle = .popover // creates a popoverPresentationController
                     
-                    guard let popoverPresentationController = self.imagePicker.popoverPresentationController
+                    guard let popoverPresentationController = imagePicker.popoverPresentationController
                         else { fatalError() }
                     
                     if let presentingBarButtonItem = self.presentingBarButtonItem {
@@ -311,7 +318,7 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
                         popoverPresentationController.sourceView = self.presentingView
                     }
                     
-                    topVC.present(self.imagePicker, animated: true, completion: nil)
+                    topVC.present(imagePicker, animated: true, completion: nil)
                 }
             }
             alertController!.addAction(action)
@@ -346,7 +353,7 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
     /// Dismisses the displayed view. Especially handy if the sheet is displayed while suspending the app,
     open func dismiss() {
         alertController?.dismiss(animated: true, completion: nil)
-        imagePicker.dismiss(animated: true, completion: nil)
+        //imagePicker.dismiss(animated: true, completion: nil)
     }
 }
 
@@ -372,7 +379,7 @@ extension FDTakeController : UIImagePickerControllerDelegate, UINavigationContro
             }
             self.didGetPhoto?(imageToSave, info)
             if userInterfaceIdiom == .pad {
-                self.imagePicker.dismiss(animated: true)
+                picker.dismiss(animated: true)
             }
         } else if mediaType == kUTTypeMovie as String {
             self.didGetVideo?(info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.mediaURL)] as! URL, info)
