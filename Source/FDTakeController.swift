@@ -191,6 +191,8 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
             let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
             return keyWindow
     }
+
+    private var userInterfaceIdiom = UIDevice.current.userInterfaceIdiom
     
     // MARK: - Localization
 
@@ -264,12 +266,15 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
 
         alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         for (title, source) in titleToSource {
-            let action = UIAlertAction(title: localizeString(title), style: .default) {
+            let action = UIAlertAction(title: localizeString(title), style: .default) { [unowned self]
                 (UIAlertAction) -> Void in
                 self.imagePicker.sourceType = source
-                if source == .camera && self.defaultsToFrontCamera && UIImagePickerController.isCameraDeviceAvailable(.front) {
+                if source == .camera
+                             && self.defaultsToFrontCamera
+                             && UIImagePickerController.isCameraDeviceAvailable(.front) {
                     self.imagePicker.cameraDevice = .front
                 }
+
                 // set the media type: photo or video
                 self.imagePicker.allowsEditing = self.allowsEditing
                 var mediaTypes = [String]()
@@ -288,7 +293,8 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
                 }
                 let topVC = self.topViewController(rootViewController: self.presentingViewController)
 
-                if UI_USER_INTERFACE_IDIOM() == .phone || (source == .camera && self.iPadUsesFullScreenCamera) {
+                if self.userInterfaceIdiom == .phone
+                    || (source == .camera && self.iPadUsesFullScreenCamera) {
                     topVC.present(self.imagePicker, animated: true, completion: nil)
                 } else {
                     // On iPad use pop-overs.
@@ -346,7 +352,8 @@ open class FDTakeController: NSObject /* , UIImagePickerControllerDelegate, UINa
 
 extension FDTakeController : UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     /// Conformance for ImagePicker delegate
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+    public func imagePickerController(_ picker: UIImagePickerController,
+                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         // Local variable inserted by Swift 4.2 migrator.
         let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
 
@@ -364,7 +371,7 @@ extension FDTakeController : UIImagePickerControllerDelegate, UINavigationContro
                 return
             }
             self.didGetPhoto?(imageToSave, info)
-            if UI_USER_INTERFACE_IDIOM() == .pad {
+            if userInterfaceIdiom == .pad {
                 self.imagePicker.dismiss(animated: true)
             }
         } else if mediaType == kUTTypeMovie as String {
